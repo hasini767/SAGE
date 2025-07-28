@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JOURNAL</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #000;
+      margin: 0;
+      padding: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1.title {
+      color: #16697A;
+      margin-bottom: 1em;
+    }
+
+    .entry-form {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 600px;
+    }
+
+    .entry-textbox {
+      height: 150px;
+      padding: 1em;
+      font-size: 1em;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      margin-bottom: 1em;
+      resize: vertical;
+    }
+
+    .entry-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    button {
+      padding: 0.7em 1.2em;
+      border: none;
+      border-radius: 8px;
+      background-color: #16697A;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #125a6b;
+    }
+
+    #entries {
+      margin-top: 2em;
+      width: 100%;
+      max-width: 600px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      max-height: 400px;
+      padding: 1em;
+    }
+
+    .entry {
+      background-color: #F2F2F2;
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 1em;
+      position: relative;
+    }
+
+    .entry-date {
+      font-size: 0.85em;
+      color: #666;
+      margin-bottom: 0.5em;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #FFA62B;
+      color: black;
+    }
+
+    .delete-btn:hover {
+      background-color: #e19326;
+    }
+
+    /* Upload Popup Styles */
+    #upload-popup {
+      display: none;
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background: white;
+      border: 2px solid #16697A;
+      border-radius: 12px;
+      padding: 1em;
+      width: 280px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    #upload-popup h3 {
+      margin-top: 0;
+      color: #16697A;
+    }
+
+    #ocr-text {
+      margin-top: 1em;
+      padding: 0.5em;
+      background: #f2f2f2;
+      border-radius: 8px;
+      min-height: 80px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    /* Upload button fixed position */
+    .popup-toggle {
+  padding: 0.7em 1.2em;
+  font-size: 1em;
+  border-radius: 8px;
+  background-color: #16697A;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+
+    .popup-toggle:hover {
+      background-color: #125a6b;
+    }
+    .back-button {
+  align-self: flex-start;
+  margin-bottom: 1em;
+  padding: 0.5em 1em;
+  background-color: #FFA62B;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #e19326;
+}
+</style>
+</head>
+<body>
+  <button onclick="window.location.href='/'" class="back-button">←</button>
+  <h1 class="title">JOURNAL</h1>
+  <h2 class="title">SAGE LISTEN AND REMEMBERS</h2>
+
+  <form class="entry-form" id="entryForm">
+    <textarea class="entry-textbox" placeholder="What happened today?" required></textarea>
+    <div class="entry-buttons">
+  <button type="button" id="newEntryBtn">New Entry</button>
+  <button type="button" class="popup-toggle" onclick="togglePopup('upload-popup')">📄 Upload</button>
+  <button type="submit">Save Entry</button>
+</div>
+
+  </form>
+
+  <section id="entries">
+    <!-- Entries will be loaded here -->
+  </section>
+
+  <!-- Upload Journal Popup -->
+  <div id="upload-popup">
+  <h3>Upload Journal Image</h3>
+  <input type="file" id="image-upload" accept="image/*">
+  <div id="ocr-text"></div>
+  <button id="save-ocr-btn" style="margin-top: 1em;">Save to Journal</button>
+</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.4/dist/tesseract.min.js"></script>
+  <script>
+    function togglePopup(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'block' ? 'none' : 'block';
+    }
+
+    const entryForm = document.getElementById('entryForm');
+    const entryTextbox = document.querySelector('.entry-textbox');
+    const entriesSection = document.getElementById('entries');
+    const newEntryBtn = document.getElementById('newEntryBtn');
+
+    // Load previous entries
+    window.onload = () => {
+      fetch('/entries')
+        .then(res => res.json())
+        .then(data => {
+          data.entries.forEach(addEntryToDOM);
+        });
+    };
+
+    // Add entry to DOM
+    function addEntryToDOM(entry) {
+      const entryDiv = document.createElement('div');
+      entryDiv.className = 'entry';
+      entryDiv.innerHTML = `
+        <div class="entry-date">${new Date(entry.timestamp).toLocaleString()}</div>
+        <div class="entry-content">${entry.text}</div>
+        <button class="delete-btn" onclick="deleteEntry('${entry.id}', this)">Delete</button>
+      `;
+      entriesSection.prepend(entryDiv);
+    }
+
+    // Submit entry
+    entryForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = entryTextbox.value.trim();
+      if (!text) return;
+
+      fetch('/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ text })
+      })
+      .then(res => res.json())
+      .then(data => {
+        addEntryToDOM(data.entry);
+        entryTextbox.value = '';
+      });
+    });
+
+    // Clear for new entry
+    newEntryBtn.addEventListener('click', () => {
+      entryTextbox.value = '';
+      entryTextbox.focus();
+    });
+
+    // Delete entry
+    function deleteEntry(id, btn) {
+      fetch(`/delete/${id}`, { method: 'DELETE' })
+        .then(res => {
+          if (res.ok) {
+            btn.parentElement.remove();
+          }
+        });
+    }
+
+    // OCR for image upload
+    document.getElementById('image-upload').addEventListener('change', function() {
+      const file = this.files[0];
+      if (!file) return;
+      Tesseract.recognize(
+        file,
+        'eng',
+        { logger: m => console.log(m) }
+      ).then(({ data: { text } }) => {
+        document.getElementById('ocr-text').innerText = text.trim() || '[No readable text found]';
+      });
+    });
+  </script>
+  <script>
+    document.getElementById('save-ocr-btn').addEventListener('click', () => {
+  const ocrText = document.getElementById('ocr-text').innerText.trim();
+  if (!ocrText || ocrText === '[No readable text found]') {
+    alert('No OCR text to save.');
+    return;
+  }
+
+  fetch('/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: ocrText })
+  })
+  .then(res => res.json())
+  .then(data => {
+    addEntryToDOM(data.entry);
+    document.getElementById('ocr-text').innerText = '';
+    togglePopup('upload-popup'); // close the popup
+  });
+});
+</script>
+</body>
+</html>

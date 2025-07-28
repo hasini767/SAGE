@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SAGE: AI THERAPIST - Text Sage</title>
+  <link
+    href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Root color palette */
+    :root {
+      --primary: #5d8b7f;
+      --primary-light: #7aa899;
+      --primary-dark: #3a6a5e;
+      --secondary: #f8b195;
+      --light: #f9f7f7;
+      --dark: #112d32;
+      --text-light: #f5f6fa;
+      --text-muted: rgba(245, 246, 250, 0.7);
+      --bg-gradient-start: #26333d;
+      --bg-gradient-middle: #323741;
+      --bg-gradient-end: #21214e;
+      --msg-user-bg: #58cc71;
+      --msg-bot-bg: #52acff;
+      --shadow: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Base resets */
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(
+        to right,
+        var(--bg-gradient-start),
+        var(--bg-gradient-middle),
+        var(--bg-gradient-end)
+      );
+      color: var(--text-light);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    /* Chat container */
+    .chat {
+      max-width: 600px;
+      width: 100%;
+      height: 600px;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Header */
+    .card-header {
+      padding: 1rem 1.5rem;
+      background-color: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .user_img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 2px solid var(--text-light);
+      object-fit: cover;
+      position: relative;
+    }
+
+    .online_icon {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 18px;
+      height: 18px;
+      background-color: #4cd137;
+      border: 2.5px solid var(--text-light);
+      border-radius: 50%;
+      box-shadow: 0 0 6px #4cd137aa;
+    }
+
+    .user_info {
+      flex-grow: 1;
+    }
+
+    .user_info > span {
+      display: block;
+      font-weight: 700;
+      font-size: 1.5rem;
+      color: var(--primary-light);
+      letter-spacing: 1px;
+    }
+
+    .user_info > p {
+      margin-top: 0.2rem;
+      font-weight: 300;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    /* Messages body */
+    .msg_card_body {
+      flex-grow: 1;
+      padding: 1.5rem;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 0 0 0 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--primary-light) transparent;
+    }
+    .msg_card_body::-webkit-scrollbar {
+      width: 8px;
+    }
+    .msg_card_body::-webkit-scrollbar-thumb {
+      background-color: var(--primary-light);
+      border-radius: 10px;
+    }
+
+    /* Individual messages */
+    .msg_cotainer,
+    .msg_cotainer_send {
+      max-width: 75%;
+      padding: 14px 18px;
+      border-radius: 25px;
+      position: relative;
+      font-weight: 400;
+      line-height: 1.4;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px var(--shadow);
+      animation: fadeInUp 0.3s ease forwards;
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .msg_cotainer {
+      background-color: var(--msg-bot-bg);
+      color: white;
+      border-bottom-left-radius: 4px;
+      margin-bottom: 1rem;
+    }
+    .msg_cotainer_send {
+      background-color: var(--msg-user-bg);
+      color: white;
+      border-bottom-right-radius: 4px;
+      margin-bottom: 1rem;
+      margin-left: auto;
+    }
+
+    /* Timestamp style */
+    .msg_time,
+    .msg_time_send {
+      position: absolute;
+      bottom: -18px;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.6);
+      user-select: none;
+    }
+    .msg_time {
+      left: 12px;
+    }
+    .msg_time_send {
+      right: 12px;
+    }
+
+    /* User images next to messages */
+    .img_cont_msg {
+      width: 40px;
+      height: 40px;
+      margin: 0 10px;
+      position: relative;
+    }
+    .user_img_msg {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid var(--text-light);
+      object-fit: cover;
+    }
+
+    /* Message row flex containers */
+    .d-flex.justify-content-start {
+      align-items: flex-end;
+    }
+    .d-flex.justify-content-end {
+      align-items: flex-end;
+    }
+
+    /* Input area footer */
+    .card-footer {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 1rem 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    #messageArea {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    #text {
+      flex-grow: 1;
+      border-radius: 35px;
+      border: none;
+      padding: 14px 20px;
+      font-size: 1rem;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease;
+    }
+    #text::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    #text:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 0 8px var(--primary-light);
+    }
+
+    .send_btn {
+      background-color: var(--primary);
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px var(--shadow);
+      transition: background-color 0.3s ease;
+    }
+    .send_btn:hover {
+      background-color: var(--primary-dark);
+    }
+    .send_btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 576px) {
+      .chat {
+        height: 100vh;
+        border-radius: 0;
+      }
+      .card-header {
+        padding: 0.8rem 1rem;
+      }
+      #text {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat">
+    <div class="card-header">
+      <div class="img_cont" style="position: relative;">
+        <img src="/static/images/ydbg4.jpeg" alt="Sage" class="user_img" />
+        <span class="online_icon"></span>
+      </div>
+      <div class="user_info">
+        <span>SAGE Therapist</span>
+        <p>How can I help you today?</p>
+      </div>
+    </div>
+
+    <div id="messageFormeight" class="msg_card_body"></div>
+
+    <div class="card-footer">
+      <form id="messageArea" autocomplete="off">
+        <input
+          type="text"
+          id="text"
+          name="msg"
+          placeholder="Type your message..."
+          required
+          spellcheck="true"
+        />
+        <button type="submit" id="send" class="send_btn" aria-label="Send">
+          <i class="fas fa-location-arrow"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+  <script>
+    function scrollToBottom() {
+      const messageBody = document.getElementById('messageFormeight');
+      messageBody.scrollTop = messageBody.scrollHeight;
+    }
+
+    $(document).ready(function () {
+      const now = new Date();
+      const pad = (n) => (n < 10 ? '0' + n : n);
+      const timeStr = pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+      const initialGreeting = `
+        <div class="d-flex justify-content-start mb-4" style="align-items: flex-end;">
+          <div class="img_cont_msg">
+            <img src="/static/images/ydbg4.jpeg" alt="Sage" class="user_img_msg" />
+          </div>
+          <div class="msg_cotainer">
+            Hello! I'm Sage, your AI therapist. How can I help you today?
+            <span class="msg_time">${timeStr}</span>
+          </div>
+        </div>`;
+
+      $('#messageFormeight').append($.parseHTML(initialGreeting));
+      scrollToBottom();
+
+      $('#messageArea').on('submit', function (event) {
+        event.preventDefault();
+
+        const date = new Date();
+        const hour = date.getHours();
+        const minute = date.getMinutes();
+        const str_time = pad(hour) + ':' + pad(minute);
+        const rawText = $('#text').val().trim();
+
+        if (!rawText) return;
+        const avatarUrl = "{{ avatar_url }}";
+        const userHtml = `
+  <div class="d-flex justify-content-end mb-4" style="align-items: flex-end;">
+    <div class="msg_cotainer_send">${rawText}
+      <span class="msg_time_send">${str_time}</span>
+    </div>
+    <div class="img_cont_msg">
+      <img src="${avatarUrl}" alt="User" class="user_img_msg" />
+    </div>
+  </div>
+`;
+
+        $('#text').val('');
+        $('#messageFormeight').append(userHtml);
+        scrollToBottom();
+
+        $.ajax({
+  type: 'POST',
+  url: '/chatbot/get',
+  contentType: 'application/json',
+  data: JSON.stringify({ message: rawText }),
+  dataType: 'json',
+}).done(function (data) {
+  const botHtml = `
+    <div class="d-flex justify-content-start mb-4" style="align-items: flex-end;">
+      <div class="img_cont_msg">
+        <img src="/static/images/ydbg4.jpeg" alt="Sage" class="user_img_msg" />
+      </div>
+      <div class="msg_cotainer">${data.response}
+        <span class="msg_time">${str_time}</span>
+      </div>
+    </div>`;
+  $('#messageFormeight').append($.parseHTML(botHtml));
+  scrollToBottom();
+});
+
+      });
+    });
+  </script>
+</body>
+</html>

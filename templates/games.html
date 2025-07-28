@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stress Relief Games</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #283e51, #4b6cb7);
+    color: #f0f0f0;
+    margin: 0; padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 20px;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  nav {
+    margin-bottom: 20px;
+  }
+
+  nav button {
+    background: #6c7ae0;
+    border: none;
+    color: white;
+    padding: 10px 25px;
+    margin: 0 8px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  nav button:hover, nav button.active {
+    background: #8ea0f9;
+  }
+
+  main {
+    background: #182336dd;
+    border-radius: 15px;
+    padding: 20px;
+    width: 360px;
+    min-height: 400px;
+    box-shadow: 0 0 15px #00000088;
+    position: relative;
+  }
+
+  /* Hide all game sections by default */
+  .game-section {
+    display: none;
+  }
+
+  /* Show the active game section */
+  .game-section.active {
+    display: block;
+  }
+
+  /* === Screen Pet styles === */
+  #pet {
+    position: relative;
+    width: 330px;
+    height: 360px;
+    background-color: skyblue;
+    border-radius: 50% 50% 40% 40%;
+    margin: 0 auto;
+  }
+
+  .eye {
+    position: absolute;
+    width: 30px;
+    height: 60px;
+    background: white;
+    border-radius: 50%;
+    border: 2px solid black;
+  }
+
+  .pupil {
+    width: 10px;
+    height: 10px;
+    background: black;
+    border-radius: 50%;
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  #eye-left {
+    left: 50px;
+    top: 60px;
+  }
+
+  #eye-right {
+    right: 50px;
+    top: 60px;
+  }
+
+  #mouth {
+    position: absolute;
+    width: 80px;
+    height: 40px;
+    border-bottom: 4px solid black;
+    border-radius: 0 0 50% 50%;
+    left: 50%;
+    bottom: 60px;
+    transform: translateX(-50%);
+  }
+
+  #tongue {
+    width: 40px;
+    height: 40px;
+    background: red;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+  }
+
+  .cheek {
+    width: 40px;
+    height: 40px;
+    background: pink;
+    border-radius: 50%;
+    position: absolute;
+    top: 120px;
+    display: none;
+  }
+
+  #cheek-left {
+    left: 20px;
+  }
+
+  #cheek-right {
+    right: 20px;
+  }
+
+  /* === Spinner styles === */
+  #spinner-canvas {
+    display: block;
+    margin: 0 auto;
+    background: #1a2138;
+    border-radius: 15px;
+    box-shadow: inset 0 0 20px #405080;
+  }
+  .back-button {
+  align-self: flex-start;
+  margin-bottom: 1em;
+  padding: 0.5em 1em;
+  background-color: #FFA62B;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #e19326;
+}
+
+</style>
+</head>
+<body>
+<button onclick="window.location.href='/'" class="back-button">←</button>
+<header>Stress Relief Games</header>
+<nav>
+  <button id="btn-screen-pet" class="active">Screen Pet</button>
+  <button id="btn-spinner">Spinner</button>
+</nav>
+<main>
+  <!-- Screen Pet Game -->
+  <section id="screen-pet" class="game-section active">
+    <div id="pet">
+      <div id="eye-left" class="eye"><div class="pupil" id="pupil-left"></div></div>
+      <div id="eye-right" class="eye"><div class="pupil" id="pupil-right"></div></div>
+      <div class="cheek" id="cheek-left"></div>
+      <div class="cheek" id="cheek-right"></div>
+      <div id="mouth"></div>
+      <div id="tongue"></div>
+    </div>
+  </section>
+
+  <!-- Spinner Game -->
+  <section id="spinner" class="game-section">
+    <canvas id="spinner-canvas" width="360" height="360"></canvas>
+    <p style="text-align:center; margin-top: 10px;">Press <strong>SPACE</strong> to spin</p>
+  </section>
+</main>
+
+<script>
+  // Tab switching logic
+  const btnScreenPet = document.getElementById('btn-screen-pet');
+  const btnSpinner = document.getElementById('btn-spinner');
+  const screenPetSection = document.getElementById('screen-pet');
+  const spinnerSection = document.getElementById('spinner');
+
+  btnScreenPet.onclick = () => {
+    btnScreenPet.classList.add('active');
+    btnSpinner.classList.remove('active');
+    screenPetSection.classList.add('active');
+    spinnerSection.classList.remove('active');
+  };
+
+  btnSpinner.onclick = () => {
+    btnSpinner.classList.add('active');
+    btnScreenPet.classList.remove('active');
+    spinnerSection.classList.add('active');
+    screenPetSection.classList.remove('active');
+  };
+
+  // === Screen Pet game logic ===
+  const pet = document.getElementById("pet");
+  const pupils = [document.getElementById("pupil-left"), document.getElementById("pupil-right")];
+  const eyes = [document.getElementById("eye-left"), document.getElementById("eye-right")];
+  const tongue = document.getElementById("tongue");
+  const cheeks = [document.getElementById("cheek-left"), document.getElementById("cheek-right")];
+  const mouth = document.getElementById("mouth");
+
+  let eyesCrossed = false;
+  let tongueOut = false;
+  let happyLevel = 100;
+
+  function toggleEyes() {
+    eyes.forEach(eye => {
+      eye.style.background = eye.style.background === 'white' ? 'skyblue' : 'white';
+    });
+    pupils.forEach(p => {
+      p.style.display = (p.style.display === 'none' ? 'block' : 'none');
+    });
+  }
+
+  function blink() {
+    toggleEyes();
+    setTimeout(toggleEyes, 250);
+    setTimeout(blink, 3000);
+  }
+
+  function togglePupils() {
+    eyesCrossed = !eyesCrossed;
+    pupils[0].style.left = eyesCrossed ? '70%' : '50%';
+    pupils[1].style.left = eyesCrossed ? '30%' : '50%';
+  }
+
+  function toggleTongue() {
+    tongueOut = !tongueOut;
+    tongue.style.display = tongueOut ? 'block' : 'none';
+  }
+
+  function showHappy() {
+    cheeks.forEach(c => c.style.display = 'block');
+    mouth.style.borderBottom = '4px solid black';
+    happyLevel = 10;
+  }
+
+  function hideHappy() {
+    cheeks.forEach(c => c.style.display = 'none');
+    mouth.style.borderBottom = '4px solid black';
+    mouth.style.borderTop = '';
+    mouth.style.borderRadius = '';
+  }
+
+  function sad() {
+    if (happyLevel <= 0) {
+      mouth.style.borderBottom = '4px solid transparent';
+      mouth.style.borderTop = '4px solid black';
+      mouth.style.borderRadius = '50% 50% 0 0';
+    } else {
+      happyLevel--;
+    }
+    setTimeout(sad, 5000);
+  }
+
+  pet.addEventListener('mousemove', showHappy);
+  pet.addEventListener('mouseleave', hideHappy);
+  pet.addEventListener('dblclick', () => {
+    toggleTongue();
+    togglePupils();
+    hideHappy();
+    setTimeout(() => {
+      toggleTongue();
+      togglePupils();
+    }, 1000);
+  });
+
+  blink();
+  sad();
+
+  // === Spinner game logic ===
+  const canvas = document.getElementById('spinner-canvas');
+  const ctx = canvas.getContext('2d');
+  let turn = 0;
+
+  function drawSpinner() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(turn / 10);
+
+    const colors = ['red', 'green', 'blue'];
+    for(let i=0; i<3; i++) {
+      ctx.rotate((2 * Math.PI) / 3);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(100, 0);
+      ctx.fillStyle = colors[i];
+      ctx.arc(100, 0, 60, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+    }
+    ctx.restore();
+  }
+
+  function animate() {
+    if(turn > 0) turn--;
+    drawSpinner();
+    requestAnimationFrame(animate);
+  }
+
+  function flick() {
+    turn += 10;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if(e.code === 'Space') {
+      flick();
+      e.preventDefault();
+    }
+  });
+
+  animate();
+</script>
+</body>
+</html>

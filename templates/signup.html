@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #dbe5d1, #a3b18a); /* Sage green */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: fadeIn 1s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .signup-container {
+      background: #fff;
+      padding: 2.5rem 2rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      width: 370px;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .signup-container h2 {
+      text-align: center;
+      margin-bottom: 1.75rem;
+      color: #333;
+      font-size: 1.8rem;
+    }
+
+    input[type="text"], input[type="email"], input[type="password"] 
+    {
+  width: 100%;
+  padding: 0.9rem;
+  margin-bottom: 1.2rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+   }
+    input:focus {
+      outline: none;
+      border-color: #6b8e23;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(to right, #b5c99a, #8b9e6b);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(to right, #8b9e6b, #b5c99a);
+    }
+
+    .login-link {
+      margin-top: 1.2rem;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .login-link a {
+      color: #6b8e23;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .error {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      display: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <h2>Create Account</h2>
+    <form id="signupForm" method="POST">
+      <input type="text" name="fullname" placeholder="Full Name" required />
+      <input type="email" name="email" placeholder="Email Address" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div class="error" id="error-msg">Please fill in all fields.</div>
+      <button type="submit">Sign Up</button>
+    </form>
+    <div class="login-link">
+      Already have an account? <a href="{{ url_for('login') }}">Log in</a>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', function (e) {
+      const fullName = this.fullname.value.trim();
+      const email = this.email.value.trim();
+      const password = this.password.value.trim();
+      const errorMsg = document.getElementById('error-msg');
+
+      if (!fullName || !email || !password) {
+        e.preventDefault();
+        errorMsg.style.display = 'block';
+      } else {
+        errorMsg.style.display = 'none';
+      }
+    });
+  </script>
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDRekVHKU7A5p-AooHBt2JsNBmrVjh4EL8",
+    authDomain: "sage-75118.firebaseapp.com",
+    projectId: "sage-75118",
+    storageBucket: "sage-75118.firebasestorage.app",
+    messagingSenderId: "364775419466",
+    appId: "1:364775419466:web:b545b3157ab5dbddc780b3"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.8.1/firebase-auth.js";
+
+const auth = getAuth(app);
+
+document.getElementById('signupForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const fullName = this.fullname.value.trim();
+  const email = this.email.value.trim();
+  const password = this.password.value.trim();
+  const errorMsg = document.getElementById('error-msg');
+
+  if (!fullName || !email || !password) {
+    errorMsg.textContent = 'Please fill in all fields.';
+    errorMsg.style.display = 'block';
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // Optionally save fullName & username in Firestore or Realtime DB here
+    errorMsg.style.display = 'none';
+    alert('Signup successful!');
+    window.location.href="{{ url_for('home') }}";
+    // Redirect or update UI
+  } catch (error) {
+    errorMsg.textContent = error.message;
+    errorMsg.style.display = 'block';
+  }
+});
+
+</script>
+</body>
+</html>

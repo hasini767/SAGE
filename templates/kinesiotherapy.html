@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kinesiotherapy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 1rem;
+      line-height: 1.6;
+    }
+
+    h1 {
+      color: #1DB954;
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .folder {
+      margin-bottom: 3rem;
+    }
+
+    .folder h2 {
+      color: #a0d8ef;
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      border-left: 4px solid #1DB954;
+      padding-left: 0.75rem;
+    }
+
+    .images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .images img {
+      max-width: 200px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .images img:hover {
+      transform: scale(1.06);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.7);
+    }
+
+    .bottom-nav {
+      background: #1e1e1e;
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-top: 1px solid #333;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .bottom-nav a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .bottom-nav a i {
+      color: #1DB954;
+      font-size: 1.5rem;
+      transition: color 0.25s ease;
+    }
+
+    .bottom-nav a:hover i {
+      color: #21e065;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding-bottom: 4rem; /* space for fixed nav */
+      }
+    }
+    .back-button {
+  align-self: flex-start;
+  margin-bottom: 1em;
+  padding: 0.5em 1em;
+  background-color: #FFA62B;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #e19326;
+}
+
+  </style>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<button onclick="window.location.href='/'" class="back-button">←</button>
+  <h1>Kinesiotherapy Exercises</h1>
+
+  {% for folder, images in folders.items() %}
+    <div class="folder">
+      <h2>{{ folder.replace('_', ' ').title() }}</h2>
+      <div class="images">
+        {% for img in images %}
+          <img src="{{ img }}" alt="Exercise Image">
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+
+  <nav class="bottom-nav">
+    <a href="{{ url_for('home') }}" title="Home"><i class="fa fa-home"></i></a>
+    <a href="{{ url_for('journal_page') }}" title="Journal"><i class="fa fa-book"></i></a>
+    <a href="{{ url_for('edit_profile') }}" title="Profile"><i class="fa fa-user"></i></a>
+  </nav>
+
+</body>
+</html>

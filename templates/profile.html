@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Profile</title>
+  <style>
+    /* Reset & base */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #16697A;
+      padding: 2rem 1rem 3rem;
+      text-align: center;
+      position: relative;
+      border-bottom-left-radius: 3rem;
+      color: white;
+      font-weight: 700;
+      font-size: 1.8rem;
+      letter-spacing: 1.2px;
+    }
+
+    header img {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      border: 4px solid #1DB954;
+      background: #000;
+      position: absolute;
+      bottom: -48px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 12px rgba(29, 185, 84, 0.8);
+      object-fit: cover;
+    }
+
+    main {
+      flex-grow: 1;
+      max-width: 480px;
+      margin: 6rem auto 2rem;
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 2rem 2.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    }
+
+    form label {
+      display: block;
+      font-weight: 600;
+      margin-top: 1.2rem;
+      margin-bottom: 0.4rem;
+      color: #a0d8ef;
+      user-select: none;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="tel"],
+    input[type="file"] {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+      background: #333;
+      color: #eee;
+      outline: none;
+      transition: background 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="number"]:focus,
+    input[type="tel"]:focus,
+    input[type="file"]:focus {
+      background: #16697a;
+      color: #fff;
+    }
+
+    .gender-options,
+    .concerns {
+      margin-top: 0.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .gender-options label,
+    .concerns label {
+      font-weight: 500;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #2a2a2a;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      user-select: none;
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    .gender-options input[type="radio"],
+    .concerns input[type="checkbox"] {
+      display: none;
+    }
+
+    .gender-options input[type="radio"]:checked + label,
+    .concerns input[type="checkbox"]:checked + label {
+      background: #1DB954;
+      color: #121212;
+      font-weight: 700;
+      box-shadow: 0 0 8px #1DB954aa;
+    }
+
+    .save-btn {
+      margin-top: 2rem;
+      width: 100%;
+      background-color: #1DB954;
+      border: none;
+      border-radius: 30px;
+      color: #121212;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.9rem 0;
+      cursor: pointer;
+      box-shadow: 0 6px 12px #1DB954aa;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .save-btn:hover {
+      background-color: #16a844;
+      box-shadow: 0 8px 16px #16a844cc;
+    }
+
+    /* Bottom nav */
+    .bottom-nav {
+      background: #1e1e1e;
+      display: flex;
+      justify-content: space-around;
+      padding: 1rem 0;
+      border-top: 1px solid #333;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    .bottom-nav a i {
+      color: #1DB954;
+      font-size: 1.6rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      user-select: none;
+    }
+
+    .bottom-nav a i:hover {
+      color: #16a844;
+    }
+
+    /* Responsive */
+    @media (max-width: 520px) {
+      main {
+        margin: 5rem 1rem 2rem;
+        padding: 1.5rem 1.5rem;
+      }
+      header {
+        padding-bottom: 3.5rem;
+      }
+    }
+  </style>
+
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  <script>
+    // Preview uploaded avatar image
+    function previewAvatar(event) {
+      const output = document.getElementById('avatar-preview');
+      output.src = URL.createObjectURL(event.target.files[0]);
+      output.onload = function() {
+        URL.revokeObjectURL(output.src); // free memory
+      }
+    }
+    .back-button {
+  align-self: flex-start;
+  margin-bottom: 1em;
+  padding: 0.5em 1em;
+  background-color: #FFA62B;
+  color: black;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background-color: #e19326;
+}
+
+</script>
+</head>
+<body>
+<button onclick="window.location.href='/'" class="back-button">←</button>
+  <header>
+    Edit Profile
+    <img id="avatar-preview" src="{{ data.get('avatar_url', 'https://via.placeholder.com/96') }}" alt="Avatar" />
+  </header>
+
+  <main>
+    <form method="POST" enctype="multipart/form-data">
+      <label for="avatar">Upload Avatar</label>
+      <input type="file" id="avatar" name="avatar" accept="image/*" onchange="previewAvatar(event)" />
+
+      <label for="fullname">Fullname</label>
+      <input type="text" id="fullname" name="fullname" value="{{ data.get('fullname', '') }}" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" value="{{ data.get('email', '') }}" />
+
+      <label>Gender</label>
+      <div class="gender-options">
+        <input type="radio" id="male" name="gender" value="Male" {% if data.get('gender') == 'Male' %}checked{% endif %} />
+        <label for="male">Male</label>
+
+        <input type="radio" id="female" name="gender" value="Female" {% if data.get('gender') == 'Female' %}checked{% endif %} />
+        <label for="female">Female</label>
+
+        <input type="radio" id="other" name="gender" value="Other" {% if data.get('gender') == 'Other' %}checked{% endif %} />
+        <label for="other">Other</label>
+      </div>
+
+      <label for="phone">Phone no.</label>
+      <input type="tel" id="phone" name="phone" value="{{ data.get('phone', '') }}" />
+
+      <label for="age">Age</label>
+      <input type="number" id="age" name="age" value="{{ data.get('age', '') }}" min="0" />
+
+      <label>My Concerns</label>
+      <div class="concerns">
+        {% for concern in concerns %}
+          <input type="checkbox" id="concern-{{ loop.index }}" name="concerns" value="{{ concern }}" 
+            {% if concern in data.get('concerns', []) %}checked{% endif %} />
+          <label for="concern-{{ loop.index }}">{{ concern }}</label>
+        {% endfor %}
+      </div>
+
+      <button type="submit" class="save-btn">SAVE CHANGES</button>
+    </form>
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="{{ url_for('home') }}" title="Home"><i class="fa fa-home"></i></a>
+    <a href="{{ url_for('journal_page') }}" title="Journal"><i class="fa fa-book"></i></a>
+    <a href="{{ url_for('edit_profile') }}" title="Profile"><i class="fa fa-user"></i></a>
+  </nav>
+
+</body>
+</html>
